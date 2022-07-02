@@ -10,6 +10,7 @@ code = StringVar(value="\n")
 output = StringVar(value="\n")
 n_history = 0
 
+
 def format_stack(stack):
     return "\n".join(str(i) for i in stack[::-1])
 
@@ -30,27 +31,29 @@ def set_tokens(value):
     input_box.get(1.0, END)
     input_box.delete(1.0, END)
     input_box.insert(1.0, value)
-    
-    
+
+
 def get_tokens():
     return input_box.get(1.0, END)
 
 
 def parse_tokens(input_string):
     text = input_string.split()
-    for index, token in enumerate(text):
+    index = 0
+    while index < len(text):
+        token = text[index]
         try:
-            if token.isdigit(): # push number
+            if token.isdigit():  # push number
                 push(int(token))
-            elif token == "+": # add
+            elif token == "+":  # add
                 push(pop() + pop())
-            elif token == "-": # subtract
+            elif token == "-":  # subtract
                 a = pop()
                 b = pop()
                 push(b - a)
-            elif token == "*": # multiply
+            elif token == "*":  # multiply
                 push(pop() * pop())
-            elif token == "/": # divide
+            elif token == "/":  # divide
                 a = pop()
                 b = pop()
                 push(b / a)
@@ -58,41 +61,41 @@ def parse_tokens(input_string):
                 a = pop()
                 b = pop()
                 push(b % a)
-            elif token == "drop": # drop
+            elif token == "drop":  # drop
                 pop()
-            elif token == "dup": # duplicate
+            elif token == "dup":  # duplicate
                 a = pop()
                 push(a)
                 push(a)
-            elif token == "swap": # swap
-                a = pop()
-                b = pop()
-                push(a)
-                push(b)
-            elif token == "over": # ( n1 n2 -- n1 n2 n1 )
+            elif token == "swap":  # swap
                 a = pop()
                 b = pop()
+                push(a)
+                push(b)
+            elif token == "over":  # ( n1 n2 -- n1 n2 n1 )
+                a = pop()
+                b = pop()
                 push(b)
                 push(a)
                 push(b)
-            elif token == "rot": # ( n1 n2 n3 -- n2 n3 n1 )
+            elif token == "rot":  # ( n1 n2 n3 -- n2 n3 n1 )
                 a = pop()
                 b = pop()
                 c = pop()
                 push(b)
                 push(a)
                 push(c)
-            elif token == "bye": # exit
+            elif token == "bye":  # exit
                 break
-                
+
             # elif token == ":": # begin function (reserve tokens)
             # elif token == ";": # end function
             # python:
-                    # def add_one(x):
-                        # return x + 1
-                # forth:
-                    # : add_one 1 + ;
-                    
+            #    def add_one(x):
+            #       return x + 1
+            # forth:
+            #    : add_one 1 + ;
+
             elif token == ".":
                 set_output(pop(), line_return=" ")
             elif token == "emit":
@@ -100,7 +103,13 @@ def parse_tokens(input_string):
             elif token == "cr":
                 set_output("")
             # elif token == ".\"": # begin string (ends with " (not a word))
-                # ." Hello, world!"
+            #     # ." Hello, world!"
+            #     output_string = ""
+            #     index += 1
+            #     for i in text[index]:
+            #         if i == "\"":
+            #             break
+            #         output_string += i
             elif token == "=":
                 if pop() == pop():
                     push(-1)
@@ -133,7 +142,7 @@ def parse_tokens(input_string):
                     push(0)
             # elif token == "if": # only inside function, wait for 'then'
             # elif token == "else": # same deal
-            
+
             # add words
             else:
                 set_output(f"{token} ?")
@@ -142,7 +151,7 @@ def parse_tokens(input_string):
                 set_output(" ok")
         except IndexError:
             set_output("Stack underflow")
-                   
+        index += 1
 
 
 def get_recent_items():
@@ -157,14 +166,14 @@ def select_up(event=None):
     if len(get_recent_items()) - 1 > n_history:
         set_tokens(get_recent_items()[n_history])
     n_history += 1
-    
+
 
 def select_down(event=None):
     global n_history
     if len(get_recent_items()) - 1 > n_history:
         set_tokens(get_recent_items()[n_history])
     n_history -= 1
-    
+
 
 def interpret(event=None):
     global n_history
